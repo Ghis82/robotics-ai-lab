@@ -57,3 +57,9 @@ export function icon(id: string, size = 40, title?: string): string {
   const body = ICONS[id] ?? ICONS.modular;
   return `<svg class="ico-svg" viewBox="0 0 48 48" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ${title ? `role="img" aria-label="${title}"><title>${title}</title>` : 'aria-hidden="true">'}${body}</svg>`;
 }
+export const FAMILY_IMAGE: Record<string, string> = { industrial: 'arm', humanoid: 'biped', mobile: 'wheeled', aerial: 'multirotor', aquatic: 'rov', special: 'modular', companion: 'companion-desk' };
+export const IMG_CAPTION = 'Illustration générée — non contractuelle';
+/** Illustration WebP (chargement différé) avec l'icône SVG en secours si l'image ne charge pas. */
+export function robotImg(imgId: string, iconId: string, cls = ''): string {
+  return `<figure class="rimg ${cls}"><img src="./img/robots/${imgId}.webp" loading="lazy" decoding="async" width="512" height="512" alt="${IMG_CAPTION}" title="${IMG_CAPTION}" onerror="this.parentNode.classList.add('fail')"><span class="fb">${icon(iconId, 64)}</span><figcaption>${IMG_CAPTION}</figcaption></figure>`;
+}

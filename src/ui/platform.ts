@@ -18,7 +18,7 @@ function mountViewer(el: HTMLElement, shape: string) { viewer = new Viewer(el); 
 import { loadHist, pushHist, histFromResult, download } from './history';
 import { store, moduleValues, applyProject } from './store';
 import { photoPanel, photoGate } from './photo';
-import { icon } from './icons';
+import { icon, robotImg, FAMILY_IMAGE } from './icons';
 import { makeProject, validateProject } from '../core/project';
 import { assist, type AssistantAnswer } from '../core/assistant';
 import { globalMarkdown, globalHTML, buildGlobal } from '../core/globalReport';
@@ -30,7 +30,7 @@ export function renderHome() {
   <section class="hero"><h1>Concevoir, simuler et analyser des robots — honnêtement.</h1><p>Décrivez votre besoin en français : l'analyseur à règles le transforme en paramètres structurés, liste les données manquantes et oriente vers les modules réellement implémentés.</p>
   <div class="nlbox"><input id="nl" placeholder="Ex. : Configure un robot à roues pour inspecter un entrepôt"><button id="nlgo" class="primary-s">Analyser et exécuter</button></div><label class="note"><input type="checkbox" id="nldemo" style="width:auto"> Accepter les valeurs de démonstration étiquetées pour les champs qui en ont (sinon toutes les données obligatoires doivent être fournies)</label>
   <div class="examples">${['Configure un robot à roues pour inspecter un entrepôt', 'Simule un bras qui déplace un objet de deux kilogrammes', 'Compare deux configurations de drone'].map((e) => `<button class="ex">${e}</button>`).join('')}</div><div id="nlout"></div></section>
-  <h2>Familles de robots</h2><div class="grid">${FAMILIES.map((f) => { const types = ROBOT_TYPES.filter((r) => r.family === f.id); const sim = types.filter(hasWorkspace).length; return `<a class="card fam" href="#/bibliotheque?f=${f.id}"><div class="ico">${icon(f.icon, 44, f.name)}</div><b>${f.name}</b><p class="note">${f.description}</p><p class="note">${types.length} types · ${sim} avec simulation opérationnelle</p></a>`; }).join('')}</div>
+  <h2>Familles de robots</h2><div class="grid">${FAMILIES.map((f) => { const types = ROBOT_TYPES.filter((r) => r.family === f.id); const sim = types.filter(hasWorkspace).length; return `<a class="card fam" href="#/bibliotheque?f=${f.id}">${robotImg(FAMILY_IMAGE[f.id] ?? f.icon, f.icon)}<div class="ico">${icon(f.icon, 28, f.name)}</div><b>${f.name}</b><p class="note">${f.description}</p><p class="note">${types.length} types · ${sim} avec simulation opérationnelle</p></a>`; }).join('')}</div>
   <h2>Historique des simulations <small class="note">(stocké localement dans le navigateur)</small></h2><div><b>Rapport global de session :</b> <button id="gHtml">HTML</button><button id="gMd">Markdown</button><button id="gJson">JSON</button> <span class="note">Agrège toutes les exécutions, classées calculé / estimé / à valider.</span></div>
   ${hist.length ? `<table class="tbl"><tr><th>Date</th><th>Robot</th><th>Module</th><th>Résultat</th></tr>${hist.slice(0, 10).map((h) => `<tr><td>${new Date(h.date).toLocaleString('fr-FR')}</td><td>${esc(typeById(h.type)?.name ?? h.type)}</td><td>${esc(h.moduleTitle ?? ALL_MODULES[h.module]?.title ?? h.module)}</td><td>${h.ok ? '✔' : '✖'} ${esc(h.summary)}</td></tr>`).join('')}</table><button id="clrh">Effacer l'historique</button>` : '<p class="note">Aucune simulation enregistrée.</p>'}</div>`;
   let userVals: Record<string, number> = {};
@@ -70,7 +70,7 @@ export function renderLibrary(params: URLSearchParams) {
   const draw = () => {
     const q = (document.getElementById('q') as HTMLInputElement).value, f = (document.getElementById('fam') as HTMLSelectElement).value, s = (document.getElementById('st') as HTMLSelectElement).value as Status;
     const list = searchTypes(q, f || undefined, s || undefined);
-    document.getElementById('cards')!.innerHTML = FAMILIES.filter((fa) => list.some((r) => r.family === fa.id)).map((fa) => `<h2 class="famh">${icon(fa.icon, 28)} ${fa.name}</h2><div class="grid">${list.filter((r) => r.family === fa.id).map((r) => `<a class="card rcard" href="#/robot/${r.id}"><img alt="" src="${thumbnail(r.shape)}"><b class="tname">${icon(r.id, 24)} ${esc(r.name)}</b><p class="note">${esc(r.description)}</p><div>${Object.entries(r.capabilities).map(([k, v]) => `<div class="caprow"><span>${CAPL[k]}</span>${badge(v)}</div>`).join('')}</div></a>`).join('')}</div>`).join('') || '<p class="note">Aucun résultat.</p>';
+    document.getElementById('cards')!.innerHTML = FAMILIES.filter((fa) => list.some((r) => r.family === fa.id)).map((fa) => `<h2 class="famh">${icon(fa.icon, 28)} ${fa.name}</h2><div class="grid">${list.filter((r) => r.family === fa.id).map((r) => `<a class="card rcard" href="#/robot/${r.id}">${robotImg(r.id, r.id)}<b class="tname">${icon(r.id, 24)} ${esc(r.name)}</b><p class="note">${esc(r.description)}</p><div>${Object.entries(r.capabilities).map(([k, v]) => `<div class="caprow"><span>${CAPL[k]}</span>${badge(v)}</div>`).join('')}</div></a>`).join('')}</div>`).join('') || '<p class="note">Aucun résultat.</p>';
   };
   ['q', 'fam', 'st'].forEach((id) => document.getElementById(id)!.addEventListener('input', draw)); draw();
 }
@@ -78,7 +78,7 @@ export function renderLibrary(params: URLSearchParams) {
 export function renderDetail(id: string) {
   const r = typeById(id); if (!r) { root.innerHTML = topbar('lib') + '<div class="page">Type inconnu.</div>'; return; }
   const fam = FAMILIES.find((f) => f.id === r.family)!;
-  root.innerHTML = topbar('lib') + `<div class="page detail"><p><a href="#/bibliotheque">← Bibliothèque</a> / ${fam.name}</p><h1 class="famh">${icon(r.id, 36, r.name)} ${esc(r.name)}</h1><p>${esc(r.description)}</p>
+  root.innerHTML = topbar('lib') + `<div class="page detail"><p><a href="#/bibliotheque">← Bibliothèque</a> / ${fam.name}</p><h1 class="famh">${icon(r.id, 36, r.name)} ${esc(r.name)}</h1>${robotImg(r.id, r.id, 'hero')}<p>${esc(r.description)}</p>
   <div class="split"><div class="card"><div id="dview" class="view3d"></div><p class="tag">Modèle générique non validé — illustration procédurale sans données mécaniques.</p></div>
   <div class="card"><h3>Statut des capacités</h3>${Object.entries(r.capabilities).map(([k, v]) => `<div class="caprow"><span>${CAPL[k]}</span>${badge(v)}</div>`).join('')}
   <h3>Composants</h3><p>${r.components.join(', ') || '<span class="note">à définir</span>'}</p><h3>Articulations / axes</h3><p>${esc(r.joints)}</p>
