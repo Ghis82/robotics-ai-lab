@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Robotics AI Lab</title>  <link rel="manifest" href="./manifest.webmanifest"><meta name="theme-color" content="#0b1220"><link rel="apple-touch-icon" href="./icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+  <script>if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("./sw.js"));</script>
+</head>
+<body>
+<div id="platform"></div>
+<div id="app" style="display:none">
+  <nav id="nav">
+    <div class="brand">⬢ Robotics AI Lab</div><a href="#/">⌂ Accueil</a><a href="#/bibliotheque">▦ Bibliothèque</a><a href="#/comparateur">⇄ Comparateur</a><a href="#/planificateur">⌖ Planificateur</a>
+    <a href="#/atelier/arm" data-act="new">＋ Nouveau projet</a><a href="#/atelier/arm" data-goto="import">⇪ Importer un modèle</a><a href="#/atelier/arm" data-goto="config">⚙ Configuration</a>
+    <a href="#/atelier/arm" data-goto="sim">▶ Simulation</a><a href="#/atelier/arm" data-goto="analysis">✦ Analyse IA</a><a href="#/atelier/arm" data-goto="report">▤ Rapports</a>
+    <div class="navnote">Prototype — bras articulé uniquement. Aucune clé API requise.</div>
+  </nav>
+  <aside id="left" class="panel">
+    <h2 id="config">Configuration du robot</h2>
+    <div class="tabs"><button data-tab="comp" class="on">Composants</button><button data-tab="imp">Importer</button></div>
+    <div data-pane="comp"><div id="links"></div><h3>Socle et charge</h3><div id="base"></div><h3>Obstacle (sphère)</h3><div id="obst"></div></div>
+    <div data-pane="imp" hidden><h3 id="import">Importer un modèle</h3>
+      <label id="drop">⇪ Glissez-déposez vos fichiers ici<br><small>ou cliquez — URDF (+ maillages STL/OBJ associés), STL, OBJ. STEP : conversion serveur requise.</small><input type="file" multiple id="file" hidden></label>
+      <div class="fmt"><span>STL</span><span>OBJ</span><span>URDF</span><span class="off" title="Conversion serveur requise">STEP</span></div>
+      <button id="urdfdemo">Charger l'exemple URDF (3 axes)</button><div id="impinfo"></div><div id="urdfan"></div><div id="urdfj"></div><button id="backdemo" hidden>↩ Revenir au bras de démonstration</button></div>
+  </aside>
+  <main id="center">
+    <div id="toolbar"><button id="tAxes" class="on">Axes</button><button id="tCaps" class="on">Capsules</button><button id="tReset">Réinitialiser la vue</button><span id="status"></span></div>
+    <div id="view"></div>
+    <div id="legend">Glisser : rotation · Clic droit : déplacement · Molette : zoom · <span style="color:#3fa9ff">→ axes articulaires</span> · <span style="color:#ffcc00">● projection du CdM</span> · <span style="color:#ff5566">rouge : collision (capsules)</span></div>
+    <div id="sim" class="timeline"><button id="play">▶</button><input id="scrub" type="range" min="0" max="0" value="0"><span id="tlabel">t = 0.00 s</span></div>
+  </main>
+  <aside id="right" class="panel">
+    <h2>Paramètres mécaniques</h2><div id="motors"></div>
+    <h2>Limites d'articulation & pose manuelle</h2><div id="limits"></div>
+    <h2>Cinématique inverse (IK numérique)</h2><div class="item"><div class="row"><label>Cible X (mm)</label><input id="ikx" type="number" value="400"></div><div class="row"><label>Cible Y (mm)</label><input id="iky" type="number" value="100"></div><div class="row"><label>Cible Z (mm)</label><input id="ikz" type="number" value="300"></div><label class="note"><input type="checkbox" id="ikori" style="width:auto"> Imposer l'orientation de l'outil (IK 6D)</label><div id="ikoriBox" hidden><div class="row"><label>Roulis / tangage / lacet (°)</label><input id="ikrpy" value="0, 90, 0"></div><div class="row"><label>Poids orientation</label><input id="ikwo" type="number" value="0.3" step="0.1"></div></div><button id="iksolve">Résoudre l'IK</button><button id="ikadd">Ajouter comme pose</button><div id="ikres" class="note"></div></div>
+    <h2>Trajectoire (poses articulaires, °)</h2><div id="poses"></div>
+    <button id="addpose">＋ Ajouter une pose</button>
+    <button id="run" class="primary">Lancer la simulation</button>
+  </aside>
+  <section id="bottom">
+    <div class="card"><h2>Couples articulaires</h2><select id="jsel"></select><canvas id="c1"></canvas><p class="note">Ligne pleine rouge : couple dynamique <b>estimé</b> · bleue : statique <b>calculé</b> · pointillés : couple moteur déclaré.</p></div>
+    <div class="card"><h2>Dégagements</h2><canvas id="c2"></canvas><p class="note">Distance minimale capsule–capsule / sol / obstacle (calculée) et marge de basculement statique.</p></div>
+    <div class="card wide"><h2 id="analysis">Analyse IA <small>(assistant à règles déterministe — n'interprète que les résultats calculés)</small></h2><div id="summary"></div>
+      <table id="anom"><thead><tr><th>Gravité</th><th>Nature</th><th>Problème</th><th>Détail</th><th>Suggestion</th></tr></thead><tbody></tbody></table></div>
+    <div class="card"><h2 id="report">Rapport technique</h2><p class="note">Le rapport reprend hypothèses, anomalies, données manquantes et un avertissement explicite.</p>
+      <button id="exJson">Exporter JSON</button><button id="exHtml">Exporter HTML</button><button id="exMd">Exporter Markdown</button>
+      <h3>Comparer des configurations</h3><button id="saveA">Mémoriser comme config. A</button><div id="cmp" class="note"></div>
+      <h3>Hypothèses</h3><ul id="assume" class="note"></ul></div>
+    <div class="card wide"><h2>Dynamique corps rigides — Rapier <span class="badge b-exp">Expérimental</span></h2><p class="note">Moteur physique open source (WASM) séparé du module analytique : corps rigides, gravité, liaisons rotoïdes, moteurs de position (PD numérique), contacts avec le sol. Les gains moteurs sont des paramètres numériques du solveur, pas des caractéristiques de moteurs réels.</p>
+      <button id="rapRun">Simuler la trajectoire courante dans Rapier</button><button id="rapPlay" disabled>Rejouer le résultat Rapier dans la vue 3D</button><select id="rapj"></select><canvas id="c3"></canvas><div id="rapres" class="note"></div></div>
+  </section>
+</div>
+<script type="module" src="/src/ui/main.ts"></script>
+</body></html>

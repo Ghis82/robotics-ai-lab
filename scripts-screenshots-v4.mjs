@@ -1,0 +1,20 @@
+import { chromium } from 'playwright-core';
+const b = await chromium.launch({ executablePath: '/usr/bin/google-chrome', args: ['--no-sandbox','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader'] });
+const p = await b.newPage({ viewport: { width: 1600, height: 1000 } });
+p.on('pageerror', e => console.log('ERR', e.message));
+const D='/workspace/robotics-ai-lab/';
+await p.goto('http://localhost:4173/#/comparateur?m=quadrotor'); await p.waitForTimeout(800);
+for (const [k,vals] of [['c',[0.016,0.016]],['Ixx',[0.012,0.02]],['Iyy',[0.012,0.02]],['Izz',[0.022,0.04]],['Tmax',[6,3.3]]]) for (const c of [0,1]) { const sel=`[data-c="${c}"][data-k="${k}"]`; await p.fill(sel, String(vals[c])); await p.dispatchEvent(sel,'change'); }
+await p.click('#cadd'); await p.click('#crun'); await p.waitForTimeout(1500);
+console.log('CMP:', (await p.textContent('#cres')).replace(/\s+/g,' ').slice(0,400));
+await p.screenshot({ path: D+'screenshot-comparator.png' });
+await p.goto('http://localhost:4173/#/atelier/biped'); await p.waitForTimeout(600); await p.selectOption('#msel','biped-zmp'); await p.click('#mrun'); await p.waitForTimeout(300);
+console.log('ZMP:', (await p.textContent('#mres')).replace(/\s+/g,' ').slice(0,250)); await p.screenshot({ path: D+'screenshot-biped-zmp.png' });
+await p.goto('http://localhost:4173/#/atelier/quadruped'); await p.waitForTimeout(600); await p.selectOption('#msel','quad-gait'); await p.click('#mrun'); await p.waitForTimeout(300);
+console.log('GAIT:', (await p.textContent('#mres')).replace(/\s+/g,' ').slice(0,300));
+await p.goto('http://localhost:4173/#/atelier/arm'); await p.waitForTimeout(1000);
+await p.check('#ikori'); await p.fill('#ikx','350'); await p.fill('#iky','0'); await p.fill('#ikz','200'); await p.fill('#ikrpy','0, 180, 0'); await p.click('#iksolve'); await p.waitForTimeout(500);
+console.log('IK6:', (await p.textContent('#ikres')).slice(0,250));
+await p.click('#rapRun'); await p.waitForSelector('#rapPlay:not([disabled])', { timeout: 60000 }); console.log('RAP:', (await p.textContent('#rapres')).slice(0,600));
+await p.screenshot({ path: D+'screenshot.png' });
+await b.close();

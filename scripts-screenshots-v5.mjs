@@ -1,0 +1,21 @@
+import { chromium } from 'playwright-core';
+const b = await chromium.launch({ executablePath: '/usr/bin/google-chrome', args: ['--no-sandbox','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader'] });
+const p = await b.newPage({ viewport: { width: 1600, height: 1000 } });
+p.on('pageerror', e => console.log('ERR', e.message));
+const D='/workspace/robotics-ai-lab/';
+await p.goto('http://localhost:4173/#/'); await p.waitForTimeout(800);
+await p.fill('#nl','Simule un bras qui déplace un objet de deux kilogrammes'); await p.check('#nldemo'); await p.click('#nlgo'); await p.waitForTimeout(300);
+console.log('A1:', (await p.textContent('#nlout')).replace(/\s+/g,' ').slice(0,500));
+await p.fill('[data-nk=mu]','0.5'); await p.click('#nlfill'); await p.waitForTimeout(300);
+console.log('A2:', (await p.textContent('#nlout')).replace(/\s+/g,' ').slice(0,700));
+await p.screenshot({ path: D+'screenshot-assistant.png', fullPage: true });
+await p.goto('http://localhost:4173/#/planificateur'); await p.waitForTimeout(800); await p.click('#prun'); await p.waitForTimeout(800);
+console.log('PL:', (await p.textContent('#pres')).replace(/\s+/g,' '));
+await p.screenshot({ path: D+'screenshot-planner.png' });
+await p.goto('http://localhost:4173/#/atelier/rov'); await p.waitForTimeout(600); await p.selectOption('#msel','rov-dyn');
+for (const [k,v] of [['Iyy',1.5],['cdAx',0.08],['cdAz',0.2],['kq',0.5]]) { await p.fill(`[data-k=${k}]`, String(v)); await p.dispatchEvent(`[data-k=${k}]`,'change'); }
+await p.click('#mrun'); await p.waitForTimeout(800); console.log('ROV:', (await p.textContent('#mres')).replace(/\s+/g,' ').slice(0,500));
+await p.screenshot({ path: D+'screenshot-rov.png' });
+await p.goto('http://localhost:4173/#/'); await p.waitForTimeout(500);
+const [dl] = await Promise.all([p.waitForEvent('download'), p.click('#gMd')]); await dl.saveAs('/tmp/global.md');
+await b.close();
