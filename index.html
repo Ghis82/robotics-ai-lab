@@ -3,6 +3,7 @@
   <script>if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("./sw.js"));</script>
 </head>
 <body>
+<nav id="tabbar" aria-label="Navigation principale"><a href="#/" data-t="home">🏠<span>Accueil</span></a><a href="#/bibliotheque" data-t="bibliotheque">📚<span>Robots</span></a><a href="#/atelier/arm" data-t="atelier">🦾<span>Atelier</span></a><a href="#/planificateur" data-t="planificateur">🗺️<span>Planif.</span></a><a href="#/validation" data-t="validation">✅<span>Validation</span></a></nav>
 <div id="platform"></div>
 <div id="app" style="display:none">
   <nav id="nav">
@@ -38,7 +39,7 @@
     <div class="card"><h2>Couples articulaires</h2><select id="jsel"></select><canvas id="c1"></canvas><p class="note">Ligne pleine rouge : couple dynamique <b>estimé</b> · bleue : statique <b>calculé</b> · pointillés : couple moteur déclaré.</p></div>
     <div class="card"><h2>Dégagements</h2><canvas id="c2"></canvas><p class="note">Distance minimale capsule–capsule / sol / obstacle (calculée) et marge de basculement statique.</p></div>
     <div class="card wide"><h2 id="analysis">Analyse IA <small>(assistant à règles déterministe — n'interprète que les résultats calculés)</small></h2><div id="summary"></div>
-      <table id="anom"><thead><tr><th>Gravité</th><th>Nature</th><th>Problème</th><th>Détail</th><th>Suggestion</th></tr></thead><tbody></tbody></table></div>
+      <div id="dyn"></div><table id="anom"><thead><tr><th>Gravité</th><th>Nature</th><th>Problème</th><th>Détail</th><th>Suggestion</th></tr></thead><tbody></tbody></table></div>
     <div class="card"><h2 id="report">Rapport technique</h2><p class="note">Le rapport reprend hypothèses, anomalies, données manquantes et un avertissement explicite.</p>
       <button id="exJson">Exporter JSON</button><button id="exHtml">Exporter HTML</button><button id="exMd">Exporter Markdown</button>
       <h3>Comparer des configurations</h3><button id="saveA">Mémoriser comme config. A</button><div id="cmp" class="note"></div>

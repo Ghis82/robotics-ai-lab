@@ -40,7 +40,7 @@ export function parseURDF(xml: string): URDFModel {
   return { name: R['@_name'] ?? '?', links, joints, root: roots[0]?.name ?? links[0]?.name, warnings };
 }
 export const movable = (m: URDFModel) => m.joints.filter((j) => ['revolute', 'continuous', 'prismatic'].includes(j.type));
-function rpyMat([r, p, y]: Vec3): Mat3 { return matMul(axisAngle([0, 0, 1], y), matMul(axisAngle([0, 1, 0], p), axisAngle([1, 0, 0], r))); }
+export function rpyMat([r, p, y]: Vec3): Mat3 { return matMul(axisAngle([0, 0, 1], y), matMul(axisAngle([0, 1, 0], p), axisAngle([1, 0, 0], r))); }
 export interface UFK { link: Record<string, Frame>; jointOrigin: Record<string, Vec3>; jointAxis: Record<string, Vec3> }
 /** FK sur l'arbre ; q indexé par nom d'articulation mobile (0 par défaut). Base fixée au monde à l'origine. */
 export function urdfFK(m: URDFModel, q: Record<string, number>): UFK {

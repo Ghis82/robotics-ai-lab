@@ -6,7 +6,9 @@ import { importFiles } from '../viz/importers';
 import { drawChart } from './chart';
 import { demoScara, demoCobot } from '../core/model';
 import { store } from './store';
+import { trajectoryDynamics } from '../core/dynamics';
 import { showGuide } from './guide';
+import './mobile';
 setTimeout(() => showGuide(), 300);
 import { demoArm, setUserValue, getPath, type RobotModel } from '../core/model';
 import { forwardKinematics, checkJointLimits } from '../core/kinematics';
@@ -97,6 +99,9 @@ function run() {
   viewer.setTrail(sim.frames.map((f) => f.fk.tip));
   const s = $('#scrub') as HTMLInputElement; s.max = String(sim.frames.length - 1);
   $('#summary').innerHTML = '<ul>' + an.summary.map((x) => `<li>${x}</li>`).join('') + '</ul>';
+  try { const d = trajectoryDynamics(model, sim!.frames);
+    $('#dyn').innerHTML = `<h3>Dynamique multicorps rigide (RNEA) <span class="nat">calculé</span></h3><p class="note">Couples τ = M(q)q̈ + C(q,q̇)q̇ + g(q) avec tenseurs d'inertie des segments (cylindre plein du rayon de capsule, ou section déclarée), q̇/q̈ par différences finies de la trajectoire. Courbe moteur : modèle CC linéaire τdisp = τmax(1 − |ω|/ωmax) — <b>hypothèse</b> (couple max pris comme couple de blocage, vitesse max comme vitesse à vide).</p>
+    <table><thead><tr><th>Axe</th><th>|τ| RNEA max (N·m)</th><th>Couple max déclaré</th><th>Couple-vitesse</th></tr></thead><tbody>${model.joints.map((j, i) => { const is = d.issues.find((x) => x.joint === i); return `<tr><td>${j.name}</td><td>${d.peak[i].toFixed(2)}</td><td>${j.motor ? j.motor.maxTorque : '<span class="sev-avertissement">non déclaré</span>'}</td><td>${!j.motor || !j.motor.maxSpeed ? '—' : is ? `<span class="sev-critique">dépassé à t = ${is.t.toFixed(2)} s : ${Math.abs(is.tau).toFixed(2)} N·m requis, ${is.avail.toFixed(2)} disponibles à ${(Math.abs(is.w) * 180 / Math.PI).toFixed(0)} °/s</span>` : '<span style="color:#4ade80">respectée</span>'}</td></tr>`; }).join('')}</tbody></table>${d.notes.map((n) => `<div class="warn">${n}</div>`).join('')}`; } catch (e) { $('#dyn').innerHTML = `<div class="warn">Dynamique non calculée : ${(e as Error).message}</div>`; }
   $('#anom tbody').innerHTML = an.anomalies.map((a) => `<tr><td class="sev-${a.severity}">${a.severity}</td><td><span class="nat">${a.nature}</span></td><td>${a.title}</td><td>${a.detail}</td><td>${a.suggestion ?? ''}</td></tr>`).join('');
   if (saved) $('#cmp').innerHTML = 'A (mémorisée) → B (actuelle) :<br>' + compare(saved, an).join('<br>');
   showFrame(0);
@@ -156,9 +161,12 @@ $('#assume').innerHTML = ASSUMPTIONS.map((a) => `<li>${a}</li>`).join('');
 // Import
 const drop = $('#drop'), file = $('#file') as HTMLInputElement;
 async function handle(files: File[]) {
-  if (!files.length) return; const info = await importFiles(files);
+  if (!files.length) return; $('#impinfo').innerHTML = '<div class="note">Import en cours… (le lecteur STEP OpenCascade ≈ 7 Mo est chargé à la première utilisation)</div>';
+  let info; try { info = await importFiles(files); } catch (err) { $('#impinfo').innerHTML = `<div class="warn">Échec de l'import : ${(err as Error).message}</div>`; return; }
   const uf = files.find((f) => /\.urdf$/i.test(f.name)); if (uf) document.dispatchEvent(new CustomEvent('impfile', { detail: await uf.text() })); else { $('#urdfan').innerHTML = ''; }
-  $('#impinfo').innerHTML = info.lines.map((l) => `<div class="note">${l}</div>`).join('') + info.warnings.map((w) => `<div class="warn">${w}</div>`).join('');
+  $('#impinfo').innerHTML = info.lines.map((l) => `<div class="note">${l}</div>`).join('') + info.warnings.map((w) => `<div class="warn">${w}</div>`).join('')
+    + (info.stepVolume ? `<div class="row"><label>Masse volumique (kg/m³) — obligatoire pour une masse</label><input type="number" id="steprho" placeholder="non renseigné"></div><div class="note" id="stepmass">Masse : non calculée (masse volumique non fournie).</div>` : '');
+  if (info.stepVolume) { const V = info.stepVolume; ($('#steprho') as HTMLInputElement).oninput = (e) => { const r = +(e.target as HTMLInputElement).value; $('#stepmass').textContent = r > 0 ? `Masse calculée = ${r} × ${(V * 1e6).toFixed(2)} cm³ = ${(r * V).toFixed(4)} kg (pièce pleine et homogène supposée).` : 'Masse : non calculée (masse volumique non fournie).'; }; }
   $('#urdfj').innerHTML = (info.urdfJoints ?? []).map((j, i) => `<div class="row"><label>${j.name} (${j.type})</label><input type="range" data-uj="${i}" min="${j.lower ?? -3.14}" max="${j.upper ?? 3.14}" step="0.01" value="0"></div>`).join('');
   $('#urdfj').oninput = (e) => { const t = e.target as HTMLInputElement; info.urdfJoints![+t.dataset.uj!].set(+t.value); };
   if (info.object) { viewer.showImported(info.object); $('#backdemo').hidden = false; $('#status').textContent = 'Modèle importé (visualisation seulement)'; }

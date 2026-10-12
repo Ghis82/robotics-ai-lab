@@ -4,7 +4,7 @@ import { STLLoader } from 'three/examples/jsm/loaders/STLLoader.js';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
 import URDFLoader from 'urdf-loader';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-export interface ImportInfo { object: THREE.Object3D | null; lines: string[]; warnings: string[]; urdfJoints?: { name: string; type: string; lower?: number; upper?: number; set: (v: number) => void }[] }
+export interface ImportInfo { object: THREE.Object3D | null; lines: string[]; warnings: string[]; stepVolume?: number | null; urdfJoints?: { name: string; type: string; lower?: number; upper?: number; set: (v: number) => void }[] }
 const unitHint = (s: THREE.Vector3) => Math.max(s.x, s.y, s.z) > 10 ? 'Dimensions > 10 unités : le fichier est probablement en millimètres (les maillages n\'ont pas d\'unité déclarée). Mise à l\'échelle ×0,001 appliquée à l\'affichage.' : null;
 function fit(obj: THREE.Object3D, info: ImportInfo) {
   const box = new THREE.Box3().setFromObject(obj); const s = box.getSize(new THREE.Vector3());
@@ -53,9 +53,11 @@ export async function importFiles(files: File[]): Promise<ImportInfo> {
     info.warnings.push('Le URDF importé est affiché et manipulable ; le moteur d\'analyse de ce prototype ne traite pour l\'instant que le bras de démonstration paramétrique.');
     return info;
   } else if (ext === 'step' || ext === 'stp') {
-    info.warnings.push('STEP (ISO 10303) n\'est pas lisible directement par le navigateur. Une conversion côté serveur est nécessaire (ex. OpenCascade / pythonOCC, FreeCAD en ligne de commande, ou opencascade.js en WebAssembly) vers STL/glTF. Non implémenté dans ce prototype.');
-    return info;
-  } else { info.warnings.push(`Format .${ext} non pris en charge (formats acceptés : URDF, GLB/glTF, STL, OBJ).`); return info; }
+    const { importStep } = await import('./stepImport'); const st = await importStep(await main.arrayBuffer());
+    info.object = st.group; info.stepVolume = st.volume; info.lines.push(`STEP (OpenCascade/WebAssembly) : ${st.meshes} solide(s)/maillage(s). ${st.unitNote}`);
+    info.lines.push(`Boîte englobante : ${st.bbox.size.map((v) => (v * 1000).toFixed(1)).join(' × ')} mm.`, st.volume != null ? `Volume calculé (maillage tessellé, fermé) : ${(st.volume * 1e6).toFixed(2)} cm³ — précision liée à la tessellation.` : 'Volume : non calculé (maillage non fermé).');
+    info.warnings.push(...st.warnings); const box = new THREE.Box3().setFromObject(st.group); st.group.position.z -= box.min.z; return info;
+  } else { info.warnings.push(`Format .${ext} non pris en charge (formats acceptés : URDF, GLB/glTF, STL, OBJ, STEP).`); return info; }
   fit(info.object!, info);
   info.warnings.push('Ce maillage ne contient AUCUNE information de masse, d\'inertie, de matériau ni d\'articulation. Il est affiché pour examen géométrique seulement.');
   return info;

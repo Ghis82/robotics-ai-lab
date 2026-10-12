@@ -1,4 +1,4 @@
-# Robotics AI Lab — prototype v0.7 (plateforme multi-robots)
+# Robotics AI Lab — prototype v0.8 (plateforme multi-robots)
 
 Application Web de conception et de **validation virtuelle préliminaire** de robots.
 Stack : Vite + TypeScript + Three.js (+ urdf-loader). Aucun service payant, aucune clé API.
@@ -13,6 +13,14 @@ npm run build && npm run preview  # http://localhost:4173
 ```
 Routes : `#/` accueil · `#/bibliotheque` · `#/comparateur` · `#/planificateur` · `#/robot/<id>` fiche · `#/atelier/arm` atelier bras complet · `#/atelier/<id>` atelier générique.
 
+
+## Nouveautés v0.8
+- **Dynamique multicorps rigide** (`src/core/dynamics.ts`) : RNEA (Newton-Euler récursif) avec tenseurs d'inertie des segments (cylindre plein du rayon de capsule, tube/rectangle déclaré, ou tenseurs URDF avec fusion des liaisons fixes), matrice de masse par CRBA colonne par colonne, dynamique directe q̈ = M⁻¹(τ − h) + RK4. ABA (Featherstone) non implémenté : la CRBA O(n³) suffit pour n ≤ 7. Validé : RNEA statique = couples gravitaires analytiques, aller-retour FD/ID, conservation de l'énergie, URDF, accord Rapier (< 5 % de l'amplitude sur 0,15 s ; divergence ensuite, système chaotique). Atelier : tableau des couples RNEA et contrôle **couple-vitesse** (modèle CC linéaire — hypothèse).
+- **Résistance simplifiée** (`strength.ts`, page `#/resistance`) : flexion/torsion à la base de chaque segment (rond plein, tube, rectangle — torsion rectangulaire selon Roark), von Mises, coefficient de sécurité, flèche au TCP (majorant, articulations rigides). Matériau obligatoire ; bibliothèque de **valeurs typiques sourcées** (6061-T6, 7075-T6, S235, 304, PLA, ABS, PA12). **Estimation, pas un calcul par éléments finis.**
+- **Import STEP dans le navigateur** via `occt-import-js` (OpenCascade WebAssembly, ≈ 7,6 Mo, chargé à la demande) : affichage, boîte englobante, volume (si maillage fermé) ; masse seulement si l'utilisateur saisit la masse volumique.
+- **Suite de validation** (`#/validation`) : pendule composé, double pendule (énergie), couple statique, accélération angulaire initiale, poutre console (flèche, contrainte), Rapier vs RNEA, seuil de glissement de la pince dans Rapier — calculé vs référence, erreur, tolérance.
+- **Mobile** : barre d'onglets inférieure, panneaux repliables (toucher le titre), vue 3D à 55 % de la hauteur, commandes agrandies.
+- Tests : 156/156 (15 nouveaux dans `tests/v8.test.ts`). Fichier de test `tests/fixtures/cube.step` issu du dépôt occt-import-js (LGPL-2.1).
 
 ## Nouveautés v0.7
 - **7e famille « Robots compagnons »** : robot de bureau à tête articulée, robot de poche/pendentif, compagnon mobile sur roues (modèles 3D procéduraux « modèle générique non validé » : tête à écran-visage, petits bras, socle). Des produits comme Eilik, Emo ou Aibi Pocket sont cités uniquement comme exemples de catégorie : **aucune spécification de ces produits n'est utilisée**.
