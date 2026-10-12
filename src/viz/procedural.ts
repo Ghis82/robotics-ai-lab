@@ -26,6 +26,16 @@ export function buildProcedural(shape: string): THREE.Group {
     case 'soft': for (let k = 0; k < 6; k++) g.add(sph(0.06 - k * 0.006, 0xf472b6, Math.sin(k * 0.5) * 0.05 * k, 0, 0.06 + k * 0.09)); break;
     case 'modular': for (let k = 0; k < 5; k++) g.add(box(0.1, 0.1, 0.1, k % 2 ? BLUE : GREY, (k % 3) * 0.11, Math.floor(k / 3) * 0.11, 0.05 + (k === 4 ? 0.11 : 0))); break;
     case 'swarm': for (let k = 0; k < 12; k++) g.add(sph(0.04, k % 3 ? GREY : BLUE, Math.cos(k * 2.4) * 0.05 * k, Math.sin(k * 2.4) * 0.05 * k, 0.05)); break;
+    case 'companion': case 'companion-pocket': case 'companion-mobile': {
+      const k = shape === 'companion-pocket' ? 0.6 : 1; const z0 = shape === 'companion-mobile' ? 0.06 : 0;
+      if (shape === 'companion-mobile') g.add(box(0.16, 0.12, 0.04, DARK, 0, 0, 0.04), cyl(0.03, 0.015, DARK, 0, 0.07, 0.03, 'y'), cyl(0.03, 0.015, DARK, 0, -0.07, 0.03, 'y'));
+      else if (shape === 'companion') g.add(cyl(0.05, 0.02, DARK, 0, 0, 0.01));
+      g.add(box(0.07 * k, 0.07 * k, 0.05 * k, 0xf1f5f9, 0, 0, z0 + 0.045 * k)); // corps
+      const hz = z0 + 0.11 * k; g.add(box(0.1 * k, 0.085 * k, 0.075 * k, 0xf8fafc, 0, 0, hz), box(0.008, 0.07 * k, 0.055 * k, 0x0f172a, 0.05 * k, 0, hz)); // tête + écran
+      g.add(sph(0.009 * k, 0x38bdf8, 0.055 * k, 0.018 * k, hz + 0.006 * k), sph(0.009 * k, 0x38bdf8, 0.055 * k, -0.018 * k, hz + 0.006 * k), box(0.003, 0.016 * k, 0.003, 0x38bdf8, 0.055 * k, 0, hz - 0.014 * k)); // yeux + bouche
+      g.add(rod(V(0, 0.04 * k, z0 + 0.06 * k), V(0.03 * k, 0.06 * k, z0 + 0.03 * k), 0.008 * k, BLUE), rod(V(0, -0.04 * k, z0 + 0.06 * k), V(0.03 * k, -0.06 * k, z0 + 0.03 * k), 0.008 * k, BLUE)); // bras
+      if (shape === 'companion-pocket') g.add(rod(V(0, 0, hz + 0.04 * k), V(0, 0, hz + 0.07 * k), 0.003, DARK));
+      break; }
     default: g.add(box(0.2, 0.2, 0.2, GREY, 0, 0, 0.1));
   }
   g.userData.label = 'modèle générique non validé';

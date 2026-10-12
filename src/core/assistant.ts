@@ -8,8 +8,8 @@ import { compareConfigs, type CompareTable } from './compare';
 export interface AssistantAnswer { comparison?: CompareTable | null; parsed: ParsedRequest; moduleId: string | null; values: ParamValues | null; missing: ParamDef[]; executed: boolean; result: ModuleResult | null; explanation: string[]; compareWith?: ParamValues }
 /** Correspondance des grandeurs extraites du texte vers les paramètres d'un module. */
 const MAP: Record<string, Record<string, string>> = { gripper: { payloadMass: 'mass', force: 'fmax' }, aerial: { payloadMass: 'mass', n_rotor: 'nRotors' }, quadrotor: { payloadMass: 'mass' }, 'mobile-diff': { payloadMass: 'mass', speed: 'vmax', torque: 'motorTorque' },
-  'nav-grid': { speed: 'vmax', sx: 'sx', sy: 'sy', gx: 'gx', gy: 'gy' }, swarm: { n_agent: 'n', n_robot: 'n', n_drone: 'n' }, 'swarm-mission': { n_agent: 'n', n_robot: 'n', n_drone: 'n', missionCode: 'mission' }, aquatic: { payloadMass: 'mass' }, 'rov-dyn': { payloadMass: 'mass' } };
-const PREF: Record<string, string> = { arm: 'gripper', wheeled: 'nav-grid', inspection: 'nav-grid', multirotor: 'aerial', rov: 'rov-dyn', auv: 'rov-dyn', swarm: 'swarm-mission' };
+  'nav-grid': { speed: 'vmax', sx: 'sx', sy: 'sy', gx: 'gx', gy: 'gy' }, swarm: { n_agent: 'n', n_robot: 'n', n_drone: 'n' }, 'swarm-mission': { n_agent: 'n', n_robot: 'n', n_drone: 'n', missionCode: 'mission' }, aquatic: { payloadMass: 'mass' }, 'rov-dyn': { payloadMass: 'mass' }, companion: {} };
+const PREF: Record<string, string> = { arm: 'gripper', wheeled: 'nav-grid', inspection: 'nav-grid', multirotor: 'aerial', rov: 'rov-dyn', auv: 'rov-dyn', swarm: 'swarm-mission', 'companion-mobile': 'companion' };
 export function chooseModule(p: ParsedRequest): string | null { if (!p.type) return null; const pref = PREF[p.type.id]; if (pref && p.type.modules.includes(pref)) return pref; return p.type.modules[0] ?? null; }
 export function assist(text: string, opts: { userValues?: Record<string, number>; acceptDemo?: boolean } = {}): AssistantAnswer {
   const parsed = parseRequest(text); const moduleId = chooseModule(parsed); const expl: string[] = [];

@@ -6,6 +6,8 @@ import { importFiles } from '../viz/importers';
 import { drawChart } from './chart';
 import { demoScara, demoCobot } from '../core/model';
 import { store } from './store';
+import { showGuide } from './guide';
+setTimeout(() => showGuide(), 300);
 import { demoArm, setUserValue, getPath, type RobotModel } from '../core/model';
 import { forwardKinematics, checkJointLimits } from '../core/kinematics';
 import { detectCollisions } from '../core/collision';

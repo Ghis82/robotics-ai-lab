@@ -73,10 +73,10 @@ describe('Interface commune des modules', () => {
   });
 });
 describe('Registre', () => {
-  it('6 familles et types requis présents', () => {
-    expect(FAMILIES.map((f) => f.id)).toEqual(['industrial', 'humanoid', 'mobile', 'aerial', 'aquatic', 'special']);
+  it('7 familles et types requis présents', () => {
+    expect(FAMILIES.map((f) => f.id)).toEqual(['industrial', 'humanoid', 'mobile', 'aerial', 'aquatic', 'special', 'companion']);
     const counts = Object.fromEntries(FAMILIES.map((f) => [f.id, ROBOT_TYPES.filter((r) => r.family === f.id).length]));
-    expect(counts).toEqual({ industrial: 6, humanoid: 5, mobile: 6, aerial: 4, aquatic: 4, special: 8 });
+    expect(counts).toEqual({ industrial: 6, humanoid: 5, mobile: 6, aerial: 4, aquatic: 4, special: 8, companion: 3 });
   });
   it('chaque module référencé existe ; pas de faux module pour le robot souple', () => {
     ROBOT_TYPES.forEach((r) => r.modules.forEach((m) => expect(ALL_MODULES[m]).toBeTruthy()));

@@ -7,7 +7,7 @@ export interface ParsedRequest { intent: 'configurer' | 'simuler' | 'comparer' |
 const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 const NUM: Record<string, number> = { un: 1, une: 1, deux: 2, trois: 3, quatre: 4, cinq: 5, six: 6, sept: 7, huit: 8, neuf: 9, dix: 10, vingt: 20, cent: 100 };
 const num = (s: string) => (NUM[s] ?? parseFloat(s.replace(',', '.')));
-const SYN: [RegExp, string][] = [[/\b(manipulateur|bras robotise|bras robotique|robot bras)\b/, ' bras '], [/\b(agv|amr|chariot autonome|robot mobile a roues|vehicule a roues)\b/, ' robot a roues '], [/\b(uav|quadricoptere|quadrirotor|quadcopter|multicoptere|hexacoptere)\b/, ' drone '],
+const SYN: [RegExp, string][] = [[/\b(robot de compagnie|robot compagnon de bureau|desk robot|companion robot)\b/, ' robot compagnon '], [/\b(manipulateur|bras robotise|bras robotique|robot bras)\b/, ' bras '], [/\b(agv|amr|chariot autonome|robot mobile a roues|vehicule a roues)\b/, ' robot a roues '], [/\b(uav|quadricoptere|quadrirotor|quadcopter|multicoptere|hexacoptere)\b/, ' drone '],
   [/\b(sous-marin|sous marin|robot sous-marin|engin sous-marin)\b/, ' rov '], [/\b(flotte de robots|groupe de robots|essaim de robots)\b/, ' essaim '], [/\b(robot collaboratif)\b/, ' cobot '], [/\b(prehenseur|pince)\b/, ' pince '], [/\b(robot chien|robot a quatre pattes)\b/, ' quadrupede ']];
 export function parseRequest(text: string): ParsedRequest {
   let t = wordsToDigits(norm(text)); for (const [re, rep] of SYN) t = t.replace(re, rep);

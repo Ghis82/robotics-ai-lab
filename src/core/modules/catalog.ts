@@ -346,3 +346,32 @@ export const swarmMissionModule: SimModule = {
   },
 };
 ALL_MODULES['swarm-mission'] = swarmMissionModule;
+import { headTiltTorque, armTorque, companionCoM, autonomyH } from './companion';
+export const companionModule: SimModule = {
+  id: 'companion', title: 'Robot compagnon : servos, basculement, autonomie', description: 'Couples statiques tête (tilt) et bras vs couple de blocage déclaré, CdM vs empreinte du socle, autonomie estimée.',
+  params: [
+    { key: 'headMass', label: 'Masse de la tête', unit: 'kg', demo: 0.12, required: true }, { key: 'headD', label: 'Distance pivot de tilt → CdM tête', unit: 'm', demo: 0.02, required: true },
+    { key: 'tiltMax', label: 'Inclinaison max de la tête', unit: '°', demo: 30, required: true }, { key: 'tiltStall', label: 'Couple de blocage servo de tilt', unit: 'N·m', demo: null, required: true, help: 'Fiche du servo (1 kg·cm ≈ 0,0981 N·m).' },
+    { key: 'panStall', label: 'Couple de blocage servo de rotation (pan)', unit: 'N·m', demo: null, required: false },
+    { key: 'armMass', label: 'Masse d\'un bras', unit: 'kg', demo: 0.015, required: true }, { key: 'armL', label: 'Longueur d\'un bras', unit: 'm', demo: 0.05, required: true }, { key: 'armStall', label: 'Couple de blocage servo de bras', unit: 'N·m', demo: null, required: true, help: 'Fiche du servo.' },
+    { key: 'bodyMass', label: 'Masse corps + socle', unit: 'kg', demo: 0.25, required: true }, { key: 'bodyComH', label: 'Hauteur du CdM du corps', unit: 'm', demo: 0.03, required: true },
+    { key: 'headPivotH', label: 'Hauteur du pivot de tête', unit: 'm', demo: 0.07, required: true }, { key: 'baseR', label: 'Demi-largeur d\'appui du socle (avant)', unit: 'm', demo: 0.04, required: true },
+    { key: 'batWh', label: 'Capacité batterie', unit: 'Wh', demo: null, required: false }, { key: 'power', label: 'Puissance moyenne consommée', unit: 'W', demo: null, required: false },
+  ],
+  assumptions: ['Statique uniquement : pas d\'accélération, de frottement ni d\'inertie des servos ; l\'axe de rotation (pan) est vertical → couple gravitaire nul.', 'Pire cas : tête inclinée vers l\'avant au maximum, bras horizontaux tendus vers l\'avant, robot sur bureau horizontal.', 'Couple de blocage ≠ couple continu : au-delà de 50 % du couple de blocage, l\'échauffement et l\'usure sont à vérifier (règle empirique, à valider).', 'Autonomie = capacité / puissance moyenne : ignore rendement, vieillissement et profondeur de décharge.', 'Modèle générique non validé : aucune donnée de produit commercial n\'est utilisée.'],
+  run(v) {
+    const r = R(); const tH = headTiltTorque(v.headMass!, v.headD!, v.tiltMax!); const tA = armTorque(v.armMass!, v.armL!);
+    const chk = (name: string, tau: number, stall: number) => { const k = tau / stall; r.results.push({ label: `${name} : couple statique requis`, value: tau.toFixed(4), unit: 'N·m', nature: 'calculé' }, { label: `${name} : taux d'utilisation du couple de blocage`, value: (k * 100).toFixed(0), unit: '%', nature: 'calculé' });
+      if (k > 1) { r.ok = false; r.issues.push(I('critique', 'calculé', `${name} : couple requis ${tau.toFixed(4)} N·m > couple de blocage ${stall} N·m.`)); } else if (k > 0.5) r.issues.push(I('avertissement', 'à valider', `${name} : ${(k * 100).toFixed(0)} % du couple de blocage (> 50 %) — échauffement à vérifier.`)); };
+    chk('Tête (tilt)', tH, v.tiltStall!); chk('Bras', tA, v.armStall!);
+    r.results.push({ label: 'Tête (pan) : couple gravitaire', value: '0 (axe vertical)', nature: 'calculé' }); if (v.panStall == null) r.issues.push(I('info', 'à valider', 'Couple du servo de pan non renseigné : frottement et inertie non évalués.'));
+    const c = companionCoM({ bodyMass: v.bodyMass!, bodyComH: v.bodyComH!, headMass: v.headMass!, headPivotH: v.headPivotH!, headD: v.headD!, tiltDeg: v.tiltMax!, armMass: v.armMass!, armL: v.armL!, baseR: v.baseR! });
+    r.results.push({ label: 'Masse totale', value: c.M.toFixed(3), unit: 'kg', nature: 'calculé' }, { label: 'CdM : avance horizontale / hauteur', value: `${(c.x * 1000).toFixed(1)} / ${(c.z * 1000).toFixed(1)}`, unit: 'mm', nature: 'calculé' }, { label: 'Marge de basculement (avant)', value: (c.margin * 1000).toFixed(1), unit: 'mm', nature: 'calculé' }, { label: 'Inclinaison du bureau tolérée avant basculement', value: c.tipAngleDeg.toFixed(1), unit: '°', nature: 'estimé' });
+    if (c.margin <= 0) { r.ok = false; r.issues.push(I('critique', 'calculé', 'Le CdM sort de l\'empreinte du socle en pire cas : le robot bascule.')); } else if (c.margin < 0.2 * v.baseR!) r.issues.push(I('avertissement', 'calculé', 'Marge de basculement < 20 % de la demi-largeur d\'appui.'));
+    if (v.batWh != null && v.power != null) r.results.push({ label: 'Autonomie', value: autonomyH(v.batWh, v.power).toFixed(2), unit: 'h', nature: 'estimé' });
+    else r.issues.push(I('info', 'à valider', 'Autonomie non estimée : capacité batterie et/ou puissance moyenne non renseignées.'));
+    r.issues.push(I('info', 'à valider', 'Personnalité, expressions et interaction IA : à développer (non simulées).'));
+    return r;
+  },
+};
+ALL_MODULES.companion = companionModule;

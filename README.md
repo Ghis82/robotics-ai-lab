@@ -1,4 +1,4 @@
-# Robotics AI Lab — prototype v0.6 (plateforme multi-robots)
+# Robotics AI Lab — prototype v0.7 (plateforme multi-robots)
 
 Application Web de conception et de **validation virtuelle préliminaire** de robots.
 Stack : Vite + TypeScript + Three.js (+ urdf-loader). Aucun service payant, aucune clé API.
@@ -13,6 +13,13 @@ npm run build && npm run preview  # http://localhost:4173
 ```
 Routes : `#/` accueil · `#/bibliotheque` · `#/comparateur` · `#/planificateur` · `#/robot/<id>` fiche · `#/atelier/arm` atelier bras complet · `#/atelier/<id>` atelier générique.
 
+
+## Nouveautés v0.7
+- **7e famille « Robots compagnons »** : robot de bureau à tête articulée, robot de poche/pendentif, compagnon mobile sur roues (modèles 3D procéduraux « modèle générique non validé » : tête à écran-visage, petits bras, socle). Des produits comme Eilik, Emo ou Aibi Pocket sont cités uniquement comme exemples de catégorie : **aucune spécification de ces produits n'est utilisée**.
+- **Module `companion`** (testé) : couple gravitaire statique du tilt de tête (m·g·d·sin θmax) et des bras (pire cas horizontal) comparé au **couple de blocage déclaré (obligatoire)**, alerte > 50 % (règle empirique, « à valider ») ; CdM global tête inclinée + bras tendus vs demi-largeur d'appui (marge, inclinaison de bureau tolérée) ; autonomie = Wh / W (**estimé**, si fournis). Personnalité, expressions, interaction IA : **À développer**.
+- Assistant : « robot compagnon », « robot de compagnie », « robot de bureau », « pendentif/poche », « compagnon mobile ».
+- Mobile : barre de navigation compacte défilante, panneaux empilés, tableaux défilants ; **guide de première visite** (fermable, mémorisé, rouvrable via « ❓ Guide »).
+- Tests : 141/141 (7 nouveaux dans `tests/v7.test.ts`).
 
 ## Nouveautés v0.6
 - **Pince dans Rapier (expérimental)** — `src/physics/rapierGripper.ts` : paume cinématique, 2 doigts dynamiques sur glissières dont le moteur est **borné à l'effort déclaré**, frottement de Coulomb μ utilisateur, levée à accélération constante. Détection tenue/glissement (glissement relatif boîte/paume). Comparaison à F ≥ m(g+a)/(nμ) : sur le cas test (1 kg, μ = 0,5, a = 2 m/s²) la transition tenue/glissement se situe entre 0,9× et 1,1× la valeur analytique. Bouton dans l'atelier « Préhension » (2 doigts uniquement, boîte 60×60×100 mm).
