@@ -14,7 +14,7 @@ button.primary{width:100%;background:#2563eb;padding:10px;font-weight:600;margin
 .tabs{display:flex;gap:4px;margin-bottom:6px}.item{background:#0f1b33;border:1px solid #1b2a47;border-radius:8px;padding:8px;margin-bottom:6px}
 .row{display:grid;grid-template-columns:1fr 92px;gap:4px;align-items:center;margin:3px 0}.row label{color:#9fb0cc;font-size:12px}
 input,select{background:#0a1326;color:#e6eefb;border:1px solid #24406e;border-radius:5px;padding:3px 5px;width:100%;font-size:12px}input[type=range]{padding:0}
-.prov{font-size:10px;padding:1px 5px;border-radius:8px;margin-left:4px}.p-démo{background:#3b2f0a;color:#facc15}.p-utilisateur{background:#0d3321;color:#4ade80}.p-manquant{background:#3f0d16;color:#fb7185}
+.prov{font-size:10px;padding:1px 5px;border-radius:8px;margin-left:4px}.p-démo{background:#3b2f0a;color:#facc15}.p-utilisateur{background:#0d3321;color:#4ade80}.p-manquant{background:#3f0d16;color:#fb7185}.p-proposé{background:#2a1846;color:#c4b5fd}
 #bottom{grid-area:bottom;display:grid;grid-template-columns:1fr 1fr 2fr 1fr;gap:8px}.card{background:#0c1528;border:1px solid #1b2a47;border-radius:10px;padding:10px;min-width:0}
 canvas{width:100%;height:190px;display:block}.note{font-size:11px;color:#7b8aa5}
 table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;padding:4px;border-bottom:1px solid #1b2a47;vertical-align:top}th{color:#9fb6da}

@@ -1,6 +1,6 @@
 import type { Vec3 } from './math';
 /** Origine d'une valeur : jamais d'invention silencieuse. */
-export type Provenance = 'démo' | 'utilisateur' | 'URDF' | 'manquant';
+export type Provenance = 'démo' | 'utilisateur' | 'URDF' | 'manquant' | 'proposé';
 export interface Motor { model: string; maxTorque: number /* N·m */; maxSpeed?: number /* rad/s */ }
 export interface JointSpec {
   name: string; type: 'revolute';

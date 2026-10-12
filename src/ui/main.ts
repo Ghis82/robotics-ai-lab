@@ -9,6 +9,8 @@ import { store } from './store';
 import { trajectoryDynamics } from '../core/dynamics';
 import { showGuide } from './guide';
 import './mobile';
+import { photoGate, photoPanel, photoState } from './photo';
+addEventListener('hashchange', () => { if (location.hash.startsWith('#/atelier/arm')) { const el = document.getElementById('armphoto'); if (el) el.innerHTML = photoPanel(); if (photoState.dataUrl && !photoState.confirmed) { $('#summary').innerHTML = '<p class="warn">Aucun verdict : confirmez d\'abord vos dimensions, masses et moteurs (panneau « Photo de référence »).</p>'; $('#anom tbody').innerHTML = ''; $('#dyn').innerHTML = ''; } if (photoState.analysis?.visibleJoints != null && photoState.analysis.visibleJoints !== model.joints.length) el?.insertAdjacentHTML('beforeend', `<div class="warn">La photo propose ${photoState.analysis.visibleJoints} articulation(s) visibles ; le modèle de travail en a ${model.joints.length}. À vérifier : la structure n'est pas modifiée automatiquement.</div>`); } });
 setTimeout(() => showGuide(), 300);
 import { demoArm, setUserValue, getPath, type RobotModel } from '../core/model';
 import { forwardKinematics, checkJointLimits } from '../core/kinematics';
@@ -94,6 +96,7 @@ function drawCharts() {
 }
 function minClearanceAll(fk: ReturnType<typeof forwardKinematics>) { const c = detectCollisions(model, fk, Infinity); return Math.min(...c.map((x) => x.clearance)); }
 function run() {
+  if (!photoGate()) return;
   const start = poses[0].q.map(rad); const wps = poses.slice(1).map((p) => ({ q: p.q.map(rad), duration: Math.max(0.1, p.duration) }));
   sim = simulate(model, start, wps, 0.02); an = analyze(model, sim);
   viewer.setTrail(sim.frames.map((f) => f.fk.tip));

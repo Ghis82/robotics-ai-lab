@@ -10,7 +10,7 @@ export function makeProject(p: Omit<Project, 'schema' | 'version' | 'savedAt' | 
   return { schema: PROJECT_SCHEMA, version: PROJECT_VERSION, savedAt: new Date().toISOString(), note: 'Fichier de projet Robotics AI Lab. Les valeurs « démo » ne sont pas des données réelles.', ...p };
 }
 const isNum = (x: unknown) => typeof x === 'number' && Number.isFinite(x);
-const SRC = ['démo', 'utilisateur', 'URDF', 'manquant'];
+const SRC = ['démo', 'utilisateur', 'URDF', 'manquant', 'proposé'];
 /** Migration des versions antérieures (v1 : pas de champ planner ni name). */
 export function migrate(o: any): any { if (o && o.schema === PROJECT_SCHEMA && o.version === 1) return { ...o, version: 2, name: o.name ?? 'Projet migré', planner: o.planner ?? null }; return o; }
 export function validateProject(raw: unknown): { ok: true; project: Project; warnings: string[] } | { ok: false; errors: string[] } {

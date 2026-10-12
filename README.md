@@ -1,4 +1,4 @@
-# Robotics AI Lab — prototype v0.8 (plateforme multi-robots)
+# Robotics AI Lab — prototype v0.9 (plateforme multi-robots)
 
 Application Web de conception et de **validation virtuelle préliminaire** de robots.
 Stack : Vite + TypeScript + Three.js (+ urdf-loader). Aucun service payant, aucune clé API.
@@ -13,6 +13,12 @@ npm run build && npm run preview  # http://localhost:4173
 ```
 Routes : `#/` accueil · `#/bibliotheque` · `#/comparateur` · `#/planificateur` · `#/robot/<id>` fiche · `#/atelier/arm` atelier bras complet · `#/atelier/<id>` atelier générique.
 
+
+## Nouveautés v0.9
+- **Analyse de photo** (`#/photo`, `src/core/photo.ts`) : photo (redimensionnée à 1024 px), modèle de vision **optionnel** avec **votre** clé (compatible OpenAI `chat/completions` ou Google Gemini), stockée seulement sur l'appareil (session par défaut, localStorage si « mémoriser »), envoyée directement au fournisseur (pas de serveur intermédiaire). Réponse JSON **validée strictement** : clés exactes (famille, type, confiance, articulations visibles, configuration, observations), bornes, cohérence famille/type ; **rejet** de toute dimension, masse, moteur, couple, vitesse ou matériau (clé ou valeur chiffrée dans le texte). Tout est marqué **« proposé — à vérifier (issu de la photo) »**.
+- L'atelier proposé s'ouvre avec la photo en référence ; **aucun verdict de faisabilité** tant que l'utilisateur n'a pas confirmé avoir saisi lui-même dimensions, masses et moteurs ; les verdicts ne viennent que des calculs. Le nombre d'articulations proposé ne modifie jamais la structure (simple avertissement).
+- **Mode manuel sans clé** : choix famille/type, photo affichée à côté de la vue 3D.
+- Tests : 165/165 (9 nouveaux dans `tests/v9.test.ts`, réponses de fournisseurs simulées).
 
 ## Nouveautés v0.8
 - **Dynamique multicorps rigide** (`src/core/dynamics.ts`) : RNEA (Newton-Euler récursif) avec tenseurs d'inertie des segments (cylindre plein du rayon de capsule, tube/rectangle déclaré, ou tenseurs URDF avec fusion des liaisons fixes), matrice de masse par CRBA colonne par colonne, dynamique directe q̈ = M⁻¹(τ − h) + RK4. ABA (Featherstone) non implémenté : la CRBA O(n³) suffit pour n ≤ 7. Validé : RNEA statique = couples gravitaires analytiques, aller-retour FD/ID, conservation de l'énergie, URDF, accord Rapier (< 5 % de l'amplitude sur 0,15 s ; divergence ensuite, système chaotique). Atelier : tableau des couples RNEA et contrôle **couple-vitesse** (modèle CC linéaire — hypothèse).

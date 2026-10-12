@@ -41,3 +41,5 @@ body{padding-bottom:64px}
 #app{grid-template-rows:auto 55vh auto auto auto!important}
 input[type=range]{height:32px}button{min-height:40px}input[type=radio],input[type=checkbox]{transform:scale(1.3)}
 }
+#center{position:relative}#armphoto{position:absolute;top:52px;right:10px;width:240px;max-height:75%;overflow:auto;z-index:3}#armphoto .card{background:#0c1528ee}
+@media (max-width:700px){#armphoto{position:static;width:auto;max-height:none}}
