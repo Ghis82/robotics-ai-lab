@@ -1,3 +1,6 @@
+import { icon } from './icons';
+const TI: Record<string, string> = { home: 'nav-home', bibliotheque: 'nav-library', atelier: 'arm', planificateur: 'nav-planner', validation: 'nav-validation' };
+document.querySelectorAll<HTMLElement>('#tabbar a').forEach((a) => { const i = a.querySelector('[data-ico]'); if (i) i.outerHTML = icon(TI[a.dataset.t!], 24); });
 // Ergonomie mobile : onglet actif de la barre inférieure, panneaux repliables (≤ 700 px).
 const mq = matchMedia('(max-width:700px)');
 function syncTabs() { const h = location.hash.slice(2).split(/[/?]/)[0] || 'home'; document.querySelectorAll<HTMLAnchorElement>('#tabbar a').forEach((a) => a.classList.toggle('on', a.dataset.t === h)); }

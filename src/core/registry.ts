@@ -1,7 +1,7 @@
 // Registre data-driven des familles et types de robots. Ajouter un type = ajouter une entrée ici.
 export type Status = 'Disponible' | 'Expérimental' | 'À développer';
 export interface Capabilities { visualisation: Status; configuration: Status; cinematique: Status; physique: Status }
-export interface Family { id: string; name: string; icon: string; description: string }
+export interface Family { id: string; name: string; icon: string /* id d'icône SVG (src/ui/icons.ts) */; description: string }
 export interface RobotType {
   id: string; family: string; name: string; description: string; keywords: string[];
   components: string[]; joints: string; params: string[]; importFormats: string[];
@@ -11,13 +11,13 @@ export interface RobotType {
   capabilities: Capabilities; notImplemented: string[]; shape: string;
 }
 export const FAMILIES: Family[] = [
-  { id: 'industrial', name: 'Robots industriels', icon: '🦾', description: 'Bras, SCARA, Delta, portiques, cobots.' },
-  { id: 'humanoid', name: 'Humanoïdes et biomécanique', icon: '🧍', description: 'Bipèdes, torses, exosquelettes, mains.' },
-  { id: 'mobile', name: 'Robots mobiles terrestres', icon: '🚙', description: 'Roues, chenilles, quadrupèdes, rovers.' },
-  { id: 'aerial', name: 'Robots aériens', icon: '🚁', description: 'Multirotors, voilure fixe, hybrides.' },
-  { id: 'aquatic', name: 'Robots aquatiques', icon: '🌊', description: 'ROV, AUV, nageurs, engins de surface.' },
-  { id: 'special', name: 'Robots spécialisés', icon: '🧪', description: 'Médical, souple, modulaire, essaim…' },
-  { id: 'companion', name: 'Robots compagnons', icon: '🤖', description: 'Robots de bureau, de poche et compagnons mobiles (catégorie de produits du type Eilik, Emo ou Aibi Pocket — cités à titre d\'exemple, aucune spécification de ces produits n\'est utilisée).' },
+  { id: 'industrial', name: 'Robots industriels', icon: 'arm', description: 'Bras, SCARA, Delta, portiques, cobots.' },
+  { id: 'humanoid', name: 'Humanoïdes et biomécanique', icon: 'biped', description: 'Bipèdes, torses, exosquelettes, mains.' },
+  { id: 'mobile', name: 'Robots mobiles terrestres', icon: 'wheeled', description: 'Roues, chenilles, quadrupèdes, rovers.' },
+  { id: 'aerial', name: 'Robots aériens', icon: 'multirotor', description: 'Multirotors, voilure fixe, hybrides.' },
+  { id: 'aquatic', name: 'Robots aquatiques', icon: 'rov', description: 'ROV, AUV, nageurs, engins de surface.' },
+  { id: 'special', name: 'Robots spécialisés', icon: 'modular', description: 'Médical, souple, modulaire, essaim…' },
+  { id: 'companion', name: 'Robots compagnons', icon: 'companion-desk', description: 'Robots de bureau, de poche et compagnons mobiles (catégorie de produits du type Eilik, Emo ou Aibi Pocket — cités à titre d\'exemple, aucune spécification de ces produits n\'est utilisée).' },
 ];
 const A = 'Disponible', E = 'Expérimental', D = 'À développer';
 const cap = (v: Status, c: Status, k: Status, p: Status): Capabilities => ({ visualisation: v, configuration: c, cinematique: k, physique: p });

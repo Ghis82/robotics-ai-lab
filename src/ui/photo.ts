@@ -28,7 +28,7 @@ export function renderPhoto() {
   const root = document.getElementById('platform')!; const s = loadSettings();
   root.innerHTML = topbar('photo') + `<div class="page"><h1>Analyse de photo de robot</h1>
   <p class="note">Une photo permet au mieux de <b>proposer</b> une famille, un type, un nombre d'articulations visibles et une configuration — tous marqués <span class="prov p-proposé">proposé</span> « ${PHOTO_LABEL} ». Elle ne permet pas de connaître dimensions, masses, moteurs ou matériaux : ces données restent obligatoires et à saisir par vous.</p>
-  <div class="wsgrid" style="grid-template-columns:1fr 1fr"><div class="card"><h3>1. Photo</h3><label class="btn">📷 Choisir / prendre une photo<input type="file" id="phfile" accept="image/*" capture="environment" hidden></label><div id="phprev"></div></div>
+  <div class="wsgrid" style="grid-template-columns:1fr 1fr"><div class="card"><h3>1. Photo</h3><label class="btn">Choisir / prendre une photo<input type="file" id="phfile" accept="image/*" capture="environment" hidden></label><div id="phprev"></div></div>
   <div class="card"><h3>2. Analyse</h3>
    <details ${s.apiKey ? '' : ''}><summary>Réglages du modèle de vision (optionnel)</summary>
    <div class="row"><label>Fournisseur</label><select id="phprov"><option value="openai" ${s.provider === 'openai' ? 'selected' : ''}>Compatible OpenAI (chat/completions)</option><option value="gemini" ${s.provider === 'gemini' ? 'selected' : ''}>Google Gemini</option></select></div>
